@@ -4,7 +4,9 @@ const PORT = process.env.PORT
 
 // Baza podataka
 const password = process.env.ATLAS_PASS
-const dbname = 'poruke-api'
+const dbname = process.env.NODE_ENV === 'test'
+? 'poruke-api-test'
+: 'poruke-api'
 //const DB_URI = `mongodb+srv://oarwa-gz:${password}@cluster0.l0kev.mongodb.net/${dbname}?retryWrites=true&w=majority`
 
 const DB_URI = `mongodb+srv://oarwa-novo:${password}@cluster0.nwgsh.mongodb.net/${dbname}?retryWrites=true&w=majority`
