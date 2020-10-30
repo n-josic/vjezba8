@@ -1,9 +1,12 @@
 const porukeRouter = require('express').Router()
 const Poruka = require('../models/poruka')
+const Korisnik = require('../models/korisnik')
+const jwt = require('jsonwebtoken')
 
-porukeRouter.get('/', (req, res) => {
+porukeRouter.get('/', async (req, res) => {
   Poruka.find({}).then(rezultat => {    
     res.json(rezultat)
+    //.populate('korisnik')  //al ne radi
   })
 })
 
@@ -45,19 +48,33 @@ porukeRouter.put('/:id', (req, res) => {
 
 })
 
-porukeRouter.post('/', (req, res, next) => {
+const dohvatiToken = req => {
+  const auth = req.get('authorization')
+  if(auth && auth.toLowerCase().startsWith('bearer')){
+    return auth.substring(7)
+  }
+  return null
+}
+porukeRouter.post('/', async (req, res, next) => {
   const podatak = req.body
+  const token = dohvatiToken(req)
+  const dekodiraniToken = jwt.verify(token, process.env.SECRET)
+  if(!token || !dekodiraniToken.id){
+    return res.status(401).json({error: 'ne postoji token ili pogresan token'})
+  }
+  const korisnik = await Korisnik.findById(dekodiraniToken.id)
 
   const poruka = new Poruka({
     sadrzaj: podatak.sadrzaj,
     vazno: podatak.vazno || false,
-    datum: new Date()
+    datum: new Date(),
+    korisnik: korisnik._id
   })
 
   const spremljenaPoruka = await poruka.save()
+  korisnik.poruke = korisnik.poruke.concat(spremljenaPoruka._id)
   res.json(spremljenaPoruka)
-  
-  
+    
 })
 
 module.exports = porukeRouter

@@ -43,7 +43,7 @@ test('provjera sadrzaja neke poruke', async () => {
     expect(sadrzaj).toContain("HTML je jednostavan")
 })
 
-test('dodvanje ispravne poruke', async () => {
+test('dodavanje ispravne poruke', async () => {
     const nova = {
         sadrzaj: "Nikolinina poruka",
         vazno: true
@@ -55,14 +55,14 @@ test('dodvanje ispravne poruke', async () => {
     .expect(200)
     .expect('Content-Type', /application\/json/)
 
-    const odgovor = await pomocni.porukeIzBaze
+    const odgovor = await pomocni.porukeIzBaze()
     const sadrzaj = odgovor.body.map(p => p.sadrzaj)
     
     expect(sadrzaj).toContain("Nikolinina poruka")
     expect(odgovor).toHaveLength(pomocni.pocetnePoruke.length + 1)
 })
 
-test('ispravno vraca pofresku kod spremanja bez sadrzaja', async () => {
+test('ispravno vraca pogresku kod spremanja bez sadrzaja', async () => {
     const nova = {
         vazno: true
     }
